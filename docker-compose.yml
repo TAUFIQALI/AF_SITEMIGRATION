@@ -1,0 +1,62 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: acf_importer_db
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+
+  wordpress:
+    image: wordpress:php8.2-apache
+    container_name: acf_importer_wp
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DEBUG: 1
+    ports:
+      - "8080:80"
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./acf-homepage-importer:/var/www/html/wp-content/plugins/acf-homepage-importer
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: acf_importer_pma
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "8081:80"
+
+  wpcli:
+    image: wordpress:cli
+    container_name: acf_importer_wpcli
+    depends_on:
+      - wordpress
+      - db
+    user: "33:33"
+    working_dir: /var/www/html
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./acf-homepage-importer:/var/www/html/wp-content/plugins/acf-homepage-importer
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+volumes:
+  db_data:

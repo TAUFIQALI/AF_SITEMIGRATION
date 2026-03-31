@@ -1,0 +1,31 @@
+.env
+.env.*
+!.env.example
+
+# WordPress runtime files
+wordpress/
+
+# Local database and container data
+db_data/
+*.sql
+
+# Generated artifacts
+storage/imports/*
+storage/scans/*
+storage/reports/*
+!storage/imports/.gitkeep
+!storage/scans/.gitkeep
+!storage/reports/.gitkeep
+
+# Logs
+*.log
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# PHP / Composer
+vendor/
+composer.lock
